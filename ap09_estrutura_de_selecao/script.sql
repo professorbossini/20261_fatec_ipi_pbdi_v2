@@ -1,20 +1,72 @@
+-- 22/10/2022 -válida
+-- 29/02/2020 -válida
+-- 29/02/2021 -inválida
+-- 28/02/2021 - válida
+-- 31/06/2026 - inválida
 DO $$
 DECLARE
-  valor INT := fn_valor_aleatorio_entre(1, 12);
-  mensagem VARCHAR(200);
+  data INT := 31062026;
+  dia INT;
+  mes INT;
+  ano INT;
+  data_valida BOOL := TRUE;
 BEGIN
-  RAISE NOTICE 'Valor gerado: %', valor;
-  CASE valor
-    WHEN 1, 3, 5, 7, 9 THEN
-      mensagem := 'Ímpar';
-    WHEN 2, 4, 6, 8, 10 THEN
-      mensagem := 'Par';
+  dia := data / 1000000;
+  mes := (data % 1000000) / 10000;
+  ano := data % 10000;
+  RAISE NOTICE 'A data é %/%/%', dia, mes, ano;
+  IF ano >= 1 THEN
+    CASE 
+      WHEN mes > 12 OR mes < 1 OR dia < 1 OR dia > 31 THEN
+        data_valida := FALSE;
+      ELSE
+        IF ((mes = 4 OR mes = 6 OR mes = 9 OR mes = 11) AND dia > 30) THEN
+          data_valida := FALSE;
+        ELSE
+          IF mes = 2 THEN
+            CASE
+              WHEN ano % 4 = 0 AND ano % 400 <> 0 THEN
+                  IF dia > 29 THEN
+                    data_valida := FALSE;
+                  END IF;
+              ELSE
+                  IF dia > 28 THEN
+                    data_valida := FALSE;
+                  END IF;
+            END CASE;
+          END IF;
+        END IF;
+    END CASE;
+  ELSE
+    data_valida := FALSE;
+  END IF;
+  CASE
+    WHEN data_valida THEN
+      RAISE NOTICE 'A data % é válida', data;
     ELSE
-      mensagem := 'Fora do intervalo';
+      RAISE NOTICE 'A data % é inválida', data;
   END CASE;
-  RAISE NOTICE '%', mensagem;
 END;
 $$
+
+
+-- DO $$
+-- DECLARE
+--   valor INT := fn_valor_aleatorio_entre(1, 12);
+--   mensagem VARCHAR(200);
+-- BEGIN
+--   RAISE NOTICE 'Valor gerado: %', valor;
+--   CASE valor
+--     WHEN 1, 3, 5, 7, 9 THEN
+--       mensagem := 'Ímpar';
+--     WHEN 2, 4, 6, 8, 10 THEN
+--       mensagem := 'Par';
+--     ELSE
+--       mensagem := 'Fora do intervalo';
+--   END CASE;
+--   RAISE NOTICE '%', mensagem;
+-- END;
+-- $$
 
 -- DO $$
 -- DECLARE
